@@ -25,7 +25,7 @@ function App() {
   }, [isDark,dispatch]);
 
   return (
-    <div className="h-screen bg-light-primary dark:bg-dark-primary">
+    <div className="min-h-screen bg-light-primary dark:bg-dark-primary">
       <Suspense fallback={<Loader />}>
         <Routes>
           <Route path="/" element={<Home />} />

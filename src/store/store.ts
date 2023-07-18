@@ -7,7 +7,7 @@ export const toastSliceInitialState = {
   title: "",
   info: "info",
   type: "",
-  toastId:""
+  code:""
 };
 
 const toastSlice = createSlice({
@@ -19,8 +19,8 @@ const toastSlice = createSlice({
           state.showToast = true;
           state.title = action.payload.title;
           state.info = action.payload.info;
-          state.toastId = action.payload.toastId;
-
+          state.code= action.payload.code;
+          state.type=action.payload.type;
     },
     hideToast(state) {
       state.showToast=false

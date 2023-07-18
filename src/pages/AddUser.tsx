@@ -11,12 +11,9 @@ import {
   userApi,
 } from "../store/apiSlice";
 import Dropzone from "react-dropzone";
-import { Para } from "../globalstyles";
-import ToastDemo from "../components/Toast";
-
-const Div = styled.div`
-  background-color: ${({theme})=>theme.SECONDARY_BACKGROUND};
-`;
+import { Div, Para } from "../globalstyles";
+import { useToast } from "../hooks/useToast";
+import type {} from "redux-thunk/extend-redux";
 
 const InputField = styled.input`
   padding: 0.5rem;
@@ -46,12 +43,11 @@ const ImageInputDiv = styled.div`
   width: 170px;
   height: 170px;
   border-radius: 100%;
-  border: 1px dashed ${({theme})=>theme.PRIMARY_TEXT};
+  border: 1px dashed ${({ theme }) => theme.PRIMARY_TEXT};
   display: flex;
   justify-content: center;
   align-items: center;
   overflow: hidden;
- 
 `;
 
 const SelectField = styled.select`
@@ -69,153 +65,183 @@ const SelectField = styled.select`
   }
 `;
 
-type Details={
-    name:string,
-    email:string,
-    phone:string,
-    age:string,
-    gender:string,
-}
-
+type Details = {
+  name: string;
+  email: string;
+  phone: string;
+  age: string;
+  gender: string;
+};
 
 export default function AddUser() {
   const [detail, setDetail] = useState<Details>({
     name: "",
     email: "",
     phone: "",
-    age:"",
-    gender:"male"
+    age: "",
+    gender: "male",
   });
-  const [image,setImage]=useState<any>()
+  const [image, setImage] = useState<any>();
+  const { toast } = useToast();
   const navigate = useNavigate();
-  // const [params] = useSearchParams();
-  // const dispatch = useDispatch();
-  // const id = +params.get("id");
-  // const [skip, setSkip] = useState(true);
-  // const { addToast } = useToasts();
+  const [params] = useSearchParams();
+  const dispatch = useDispatch();
+  const id = params.get("id");
 
-  // const [adduser] = useAddUserMutation();
+  const [skip, setSkip] = useState(true);
 
-  // const [updateUser] = useUpdateUserMutation();
+  const [imageUrl, setImageUrl] = useState("");
 
-  // const {
-  //   data: findData,
-  //   error: findError,
-  //   isLoading: findLoading,
-  // } = useGetOneUserQuery({ body: { id: id } }, { skip });
+  const [adduser,{isLoading:addLoading}] = useAddUserMutation();
 
-  // useEffect(() => {
-  //   if (id) {
-  //     setSkip(false);
-  //     if (findError) {
-  //       console.log(findError);
-  //       return;
-  //     }
+  const [updateUser, {isLoading:updateLoading}] = useUpdateUserMutation();
 
-  //     if (findData) {
-  //       setDetail((prev) => {
-  //         return {
-  //           ...prev,
-  //           name: findData.info.name,
-  //           email: findData.info.email,
-  //           phone: findData.info.phone,
-  //         };
-  //       });
-  //     }
-  //   }
-  // }, [findError, findData, findLoading, id]);
+  const { data, error } = useGetOneUserQuery({ body: { id: id } }, { skip });
 
-  const fieldChangeHandler = (field:string) => (e: { target: { value: any; }; }) => {
-    setDetail((prev) => {
-      return { ...prev, [field]: e.target.value };
-    });
-  };
+  useEffect(() => {
+    if (id) {
+      setSkip(false);
+      if (error) {
+        console.log(error);
+        return;
+      }
 
-  const submitFormHandler = async () => {
-    // e.preventDefault();
-    // if (detail.name.length <= 2 || detail.name.length > 30) {
-    //   addToast("Invalid Name", {
-    //     appearance: "error",
-    //     autoDismiss: true,
-    //   });
-    //   return;
-    // }
+      if (data) {
+        console.log(data);
+        setDetail((prev) => {
+          return {
+            ...prev,
+            name: data.name,
+            email: data.email,
+            phone: data.phone,
+            age: data.age,
+            gender: data.gender,
+          };
+        });
+        setImageUrl(data.url);
+      }
+    }
+  }, [error, data, id]);
 
-    // if (detail.phone.length !== 10) {
-    //   addToast("Invalid Phone", {
-    //     appearance: "error",
-    //     autoDismiss: true,
-    //   });
-    //   return;
-    // }
+  const fieldChangeHandler =
+    (field: string) => (e: { target: { value: any } }) => {
+      setDetail((prev) => {
+        return { ...prev, [field]: e.target.value };
+      });
+    };
 
-    // if (id) {
-    //   updateUser({
-    //     body: {
-    //       name: detail.name,
-    //       email: detail.email,
-    //       phone: detail.phone,
-    //       id: id,
-    //     },
-    //   })
-    //     .unwrap()
-    //     .then(() => {
-    //       addToast("User Updated Successfully", {
-    //         appearance: "success",
-    //         autoDismiss: true,
-    //       });
-    //       navigate("/");
-    //     })
-    //     .catch((err) => {
-    //       addToast(err.data.info ?? "Cannot update user", {
-    //         appearance: "error",
-    //         autoDismiss: true,
-    //       });
-    //     });
-    //   return;
-    // }
+  const submitFormHandler = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-    // adduser({
-    //   body: {
-    //     name: detail.name,
-    //     email: detail.email,
-    //     phone: detail.phone,
-    //   },
-    // })
-    //   .unwrap()
-    //   .then((payload) => {
-    //     dispatch(
-    //       userApi.util.updateQueryData("getAllUsers", undefined, (state) => {
-    //         state.info.push(payload.info);
-    //       })
-    //     );
-    //     addToast("New User created Successfully", {
-    //       appearance: "success",
-    //       autoDismiss: true,
-    //     });
-    //   })
-    //   .catch((error) => {
-    //     console.log(error);
-    //     addToast(error.findData.info ?? "Cannot add user", {
-    //       appearance: "error",
-    //       autoDismiss: true,
-    //     });
-    //   });
+    if (detail.name.length <= 2 || detail.name.length > 30) {
+      toast({
+        title: "Invalid Name",
+        info: "Enter a valid Name",
+        code: "400",
+        type: "error",
+      });
+      return;
+    }
 
-    // navigate("/");
+    if (+detail.age < 1 || +detail.age > 130) {
+      toast({
+        title: "Invalid Age",
+        info: "Enter a valid Age",
+        code: "400",
+        type: "error",
+      });
+      return;
+    }
+
+    if (detail.email.length < 5) {
+      toast({
+        title: "Invalid Email",
+        info: "Enter a valid Email",
+        code: "400",
+        type: "error",
+      });
+      return;
+    }
+
+    if (detail.phone.length !== 10) {
+      toast({
+        title: "Invalid Phone",
+        info: "Enter a valid 10 Digit Phone Number",
+        code: "400",
+        type: "error",
+      });
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("name", detail.name);
+    formData.append("age", detail.age);
+    formData.append("email", detail.email);
+    formData.append("phone", detail.phone);
+    formData.append("gender", detail.gender);
+    id && formData.append("id", id);
+    formData.append("image", image as any);
+
+    if (id) {
+      updateUser(formData)
+        .unwrap()
+        .then(() => {
+          toast({
+            title: "Update User",
+            info: "User updated Sucessfully",
+            code: "200",
+            type: "success",
+          });
+          navigate("/");
+        })
+        .catch((err) => {
+          toast({
+            title: "Error",
+            info: `${err.data}`,
+            code: "400",
+            type: "error",
+          });
+        });
+      return;
+    }
+
+    adduser(formData)
+      .unwrap()
+      .then((payload) => {
+        dispatch(
+          userApi.util.updateQueryData("getAllUsers", undefined, (state) => {
+            state.push(payload);
+          })
+        );
+        toast({
+          title: "Create user",
+          info: "User Created Successfully",
+          type: "success",
+          code: "201",
+        });
+        navigate("/");
+      })
+      .catch((error) => {
+        toast({
+          title: "Create user",
+          info: `${error.data}`,
+          type: "error",
+          code: "400",
+        });
+      });
+
     return;
   };
 
   return (
     <>
       <Header />
-      <div className="w-11/12 mx-auto">
-        <form onSubmit={submitFormHandler} encType="multipart/form-data">
-          <Div className="mt-20 mb-10 rounded-lg w-6/12 mx-auto">
-            <Para  className="text-center font-semibold text-3xl py-[20px] border-b-[1px] border-light-text dark:border-dark-secondary-text">
-              Add User
+        <form onSubmit={submitFormHandler} encType="multipart/form-data" className="pb-20 pt-20">
+          <Div className="rounded-lg w-6/12 max-lg:w-8/12 mx-auto">
+            <Para className="text-center font-semibold text-3xl py-[20px] border-b-[1px] border-light-text dark:border-dark-secondary-text">
+              {id ? "Update User" : "Add User"}
             </Para>
-            <div className="flex items-center justify-between gap-8 p-[20px_50px_40px_50px]">
+            <div className="flex max-lg:flex-col items-center justify-between gap-8 max-lg:p-[20px_0px_40px_0px] p-[20px_50px_40px_50px]">
               <div className="w-[35%]">
                 <Dropzone
                   accept={{
@@ -246,12 +272,25 @@ export default function AddUser() {
                                 className="object-cover h-[170px]"
                               />
                             ) : (
-                              <img src="user-1.png" alt="upload-icon" />
+                              <div>
+                                {id && imageUrl !== "" ? (
+                                  <img
+                                    src={imageUrl}
+                                    alt="userImage"
+                                    className="object-cover h-[170px]"
+                                  />
+                                ) : (
+                                  <img src="user-1.png" alt="upload-icon" />
+                                )}
+                              </div>
                             )}
                           </ImageInputDiv>
                           <p className="py-2 px-10 bg-dark-primary dark:bg-light-secondary text-dark-text font-semibold dark:text-light-text outline-none border-none rounded-md cursor-pointer">
                             Browse
                           </p>
+                          {/* <p onClick={removeImgHandler} className="py-1 mt-2 px-10 bg-dark-primary dark:bg-light-secondary text-dark-text font-semibold dark:text-light-text outline-none border-none rounded-md cursor-pointer">
+                              Remove
+                            </p> */}
                         </div>
                       </div>
                     </section>
@@ -259,7 +298,7 @@ export default function AddUser() {
                 </Dropzone>
               </div>
               <div className="w-[65%] flex flex-col gap-3">
-                <div className="flex gap-5 w-full">
+                <div className="flex gap-5 max-lg:flex-col w-full">
                   <div>
                     <Label htmlFor="name">Name:</Label>
                     <InputField
@@ -294,7 +333,7 @@ export default function AddUser() {
                     value={detail.email}
                   />
                 </div>
-                <div className="flex gap-5 w-full items-center">
+                <div className="flex gap-5 max-lg:flex-col w-full">
                   <div>
                     <Label htmlFor="phone">Phone:</Label>
                     <InputField
@@ -323,13 +362,23 @@ export default function AddUser() {
                   type="submit"
                   className="py-2 px-10 w-full bg-dark-primary dark:bg-light-secondary text-dark-text font-semibold dark:text-light-text outline-none border-none rounded-md"
                 >
-                  Add User
+                  {addLoading || updateLoading ? (
+                    <div
+                      className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-solid border-current border-r-transparent align-[-0.125em] text-primary motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                      role="status"
+                    >
+                      <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
+                        Loading...
+                      </span>
+                    </div>
+                  ) : (
+                    <>{id ? "Update User" : "Add User"}</>
+                  )}
                 </button>
               </div>
             </div>
           </Div>
         </form>
-      </div>
     </>
   );
 }

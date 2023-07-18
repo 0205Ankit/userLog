@@ -16,6 +16,7 @@ export const userApi = createApi({
         method: "POST",
         body,
       }),
+      providesTags: ["User"],
     }),
 
     updateUser: builder.mutation({
