@@ -35,7 +35,7 @@ export default function ViewUser() {
                       />
                     )}
                   </div>
-                  <div className="w-[60%] max-lg:w-[80%] text-xl flex flex-col gap-5 overflow-scroll">
+                  <div className="w-[60%] max-lg:w-[80%] text-xl flex flex-col gap-5">
                     <div className="flex justify-between max-lg:flex-col max-lg:gap-5 max-lg:justify-center">
                       <Para className="max-lg:flex-col max-lg:gap-0  font-bold flex gap-4">
                         Name :

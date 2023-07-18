@@ -63,9 +63,9 @@ export default function Home() {
   return (
     <>
       <Header />
-      <div className="w-11/12 mx-auto overflow-scroll">
+      <div className="w-11/12 mx-auto max-md:overflow-scroll ">
         {!isLoading ? (
-          <Div className="mt-20 mb-10 rounded-lg w-10/12 max-md:w-[800px] mx-auto overflow-scroll">
+          <Div className="mt-20 mb-10 rounded-lg w-10/12 max-md:w-[800px] mx-auto">
             {data && !error ? (
               <div>
                 <div className="flex justify-between px-10 py-4 font-medium items-center">
